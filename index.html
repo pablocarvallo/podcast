@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Por escuchar">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f1f2ee" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1312" media="(prefers-color-scheme: dark)">
+<title>Por escuchar</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f1f2ee; --surface:#ffffff; --ink:#17201c; --muted:#66706b; --line:#dadfd9;
+  --accent:#2344dc; --accent-ink:#ffffff; --accent-soft:#e3e8fb; --scrim:rgba(14,18,16,.38);
+  --shadow:0 10px 30px rgba(20,28,24,.14);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0f1312; --surface:#1a1f1d; --ink:#e8ede9; --muted:#8d9792; --line:#28302c;
+    --accent:#7e95ff; --accent-ink:#0c1230; --accent-soft:#1d2546; --scrim:rgba(0,0,0,.55);
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:400 16px/1.42 "Schibsted Grotesk",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;
+  padding-top:env(safe-area-inset-top,0px);
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit}
+img{display:block}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+[hidden]{display:none !important}
+#app{max-width:560px;margin:0 auto;padding:0 18px calc(110px + env(safe-area-inset-bottom,0px))}
+h1{font-size:34px;line-height:1.08;font-weight:700;letter-spacing:-.025em;margin:0}
+h2,h3{margin:0}
+p{margin:0}
+
+/* Botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 22px;border-radius:999px;font-weight:600;font-size:16px}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{border:1.5px solid var(--line);color:var(--ink)}
+.btn.wide{width:100%}
+.btn:disabled{opacity:.45}
+.link{color:var(--accent);font-weight:600;font-size:15px;padding:6px 0}
+.icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;color:var(--ink)}
+.icon:active{background:var(--line)}
+.icon svg{width:23px;height:23px}
+.chip{min-height:38px;padding:0 15px;border-radius:999px;border:1.5px solid var(--line);font-size:14px;font-weight:600}
+.bar{height:48px;display:flex;align-items:center}
+.back{color:var(--accent);font-weight:600;font-size:16px;display:inline-flex;align-items:center;gap:2px;margin-left:-4px;padding:8px 4px}
+.back svg{width:20px;height:20px}
+.pulse{animation:pulse 1.1s ease-in-out 3}
+@keyframes pulse{50%{transform:scale(1.06);box-shadow:0 0 0 8px var(--accent-soft)}}
+
+/* Inicio: configuración */
+.intro{padding-top:46px}
+.mark{width:56px;height:56px;border-radius:15px;margin-bottom:22px;overflow:hidden}
+.mark svg{width:100%;height:100%}
+.lead{color:var(--muted);font-size:18px;line-height:1.38;margin-top:10px;max-width:30em}
+.body{margin-top:26px;font-size:16px;line-height:1.5;max-width:34em}
+.steps{list-style:none;margin:30px 0 0;padding:0}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:14px;padding:18px 0;border-top:1px solid var(--line)}
+.steps li:last-child{border-bottom:1px solid var(--line)}
+.step-n{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--ink);display:grid;place-items:center;font-weight:700;font-size:14px;font-variant-numeric:tabular-nums}
+.step-b h3{font-size:17px;font-weight:600;line-height:1.3}
+.step-b p{color:var(--muted);font-size:15px;margin:3px 0 10px}
+.status{min-height:22px;margin-top:18px;font-size:15px;color:var(--muted)}
+.status:empty{min-height:0;margin:0}
+.status.err{color:#c4372b}
+@media (prefers-color-scheme: dark){.status.err{color:#ff8a7e}}
+.alt{display:block;margin-top:6px}
+
+/* Elegir programas */
+.pick-head{padding-top:6px}
+.pick-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.note{font-size:14px;color:var(--muted);margin-top:14px}
+.filter{width:100%;margin-top:18px;height:42px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:0 14px;font:inherit;font-size:16px}
+.selall{display:flex;justify-content:space-between;align-items:center;margin-top:18px;font-size:14px;color:var(--muted)}
+.picklist{list-style:none;margin:6px 0 0;padding:0}
+.pk{display:grid;grid-template-columns:52px 1fr 28px;gap:13px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
+.pk img,.pk .ph{width:52px;height:52px;border-radius:11px;background:var(--line);object-fit:cover}
+.pk-name{font-weight:600;font-size:16px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pk-by{font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-by em{font-style:normal;color:var(--accent)}
+.tick{width:26px;height:26px;border-radius:50%;border:1.8px solid var(--line);display:grid;place-items:center;color:transparent}
+.tick svg{width:15px;height:15px}
+.pk[aria-pressed="true"] .tick{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.empty-pick{padding:28px 0;color:var(--muted);font-size:15px}
+.byname{margin-top:26px}
+.byname summary{color:var(--accent);font-weight:600;font-size:15px;list-style:none;cursor:pointer;padding:6px 0}
+.byname summary::-webkit-details-marker{display:none}
+.searchrow{display:flex;gap:8px;margin-top:10px}
+.searchrow input{flex:1;height:44px;border-radius:12px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:0 14px;font:inherit;font-size:16px;min-width:0}
+.searchrow .btn{min-height:44px;padding:0 18px}
+.dock{position:fixed;left:0;right:0;bottom:0;padding:14px 18px calc(14px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--bg) 70%,transparent);z-index:15}
+.dock .btn{width:100%;max-width:524px;margin:0 auto;display:flex}
+
+/* Lista principal */
+.top{display:flex;justify-content:space-between;align-items:flex-start;padding-top:22px}
+.sub{color:var(--muted);font-size:15px;margin-top:6px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.sub .link{padding:0;font-size:15px}
+.top-act{display:flex;gap:2px;margin-right:-8px;margin-top:-2px}
+.spin svg{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shelf{display:flex;gap:12px;overflow-x:auto;margin:20px -18px 0;padding:6px 18px 6px;scroll-padding-inline:18px;scrollbar-width:none;scroll-snap-type:x proximity}
+.shelf::-webkit-scrollbar{display:none}
+.cover{position:relative;flex:none;width:64px;height:64px;border-radius:15px;scroll-snap-align:start}
+.cover img{width:64px;height:64px;border-radius:15px;object-fit:cover;background:var(--line)}
+.cover.idle img{opacity:.38;filter:grayscale(.6)}
+.cover .n{position:absolute;right:-5px;top:-5px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;display:grid;place-items:center;border:2.5px solid var(--bg);font-variant-numeric:tabular-nums}
+.cover[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--bg),0 0 0 4.5px var(--ink)}
+.day{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);font-size:14px;font-weight:600;color:var(--muted);padding:22px 0 6px;margin:0}
+.eps{list-style:none;margin:0;padding:0}
+.ep{position:relative;overflow:hidden;border-bottom:1px solid var(--line);touch-action:pan-y;transition:height .25s ease,opacity .25s ease}
+.ep-act{position:absolute;inset:0;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:flex-end;gap:8px;padding-right:20px;font-weight:600;font-size:15px}
+.ep-act svg{width:20px;height:20px;transition:transform .15s}
+.ep.armed .ep-act svg{transform:scale(1.25)}
+.ep-in{position:relative;display:grid;grid-template-columns:56px 1fr;gap:14px;padding:14px 0;background:var(--bg);transition:transform .22s ease;cursor:pointer}
+.ep.dragging .ep-in{transition:none}
+.ep-art{width:56px;height:56px;border-radius:12px;object-fit:cover;background:var(--line)}
+.ep-show{font-size:13px;color:var(--muted);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ep-title{font-size:16.5px;font-weight:600;line-height:1.28;margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;letter-spacing:-.005em}
+.ep-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);margin-top:5px;font-variant-numeric:tabular-nums}
+.ep-meta .now{color:var(--accent);font-weight:600}
+.prog{flex:0 0 64px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.hint{font-size:14px;color:var(--muted);margin-top:16px}
+.start{background:var(--surface);border-radius:20px;padding:20px 20px 18px;margin-top:22px}
+.start h2{font-size:19px;font-weight:700;letter-spacing:-.01em;line-height:1.25}
+.start p{font-size:15px;line-height:1.5;color:var(--muted);margin-top:6px}
+.start-act{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.start-act .btn{min-height:42px;padding:0 18px;font-size:15px}
+.empty{padding:56px 0 20px;text-align:left}
+.empty h2{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.empty p{color:var(--muted);margin:8px 0 18px;max-width:28em}
+.foot{font-size:13px;color:var(--muted);margin-top:26px}
+
+/* Programas */
+.showlist{list-style:none;margin:18px 0 22px;padding:0}
+.sh{display:grid;grid-template-columns:48px 1fr 40px;gap:13px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sh img{width:48px;height:48px;border-radius:11px;object-fit:cover;background:var(--line)}
+.sh-name{font-weight:600;font-size:16px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sh-sub{font-size:13px;color:var(--muted);margin-top:2px}
+.sec{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:40px 0 6px}
+.setting{padding:14px 0;border-bottom:1px solid var(--line)}
+.setting h3{font-size:16px;font-weight:600}
+.setting p{font-size:14px;color:var(--muted);margin-top:2px}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--line);border-radius:12px;padding:3px;margin-top:12px}
+.seg button{height:36px;border-radius:9px;font-size:14px;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.row-btn{display:block;width:100%;text-align:left;padding:16px 0;border-bottom:1px solid var(--line);font-size:16px;font-weight:500}
+.row-btn.accent{color:var(--accent);font-weight:600}
+
+/* Hojas inferiores */
+.sheet{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;transition:opacity .25s}
+.panel{position:relative;width:100%;max-width:560px;max-height:calc(100% - 40px - env(safe-area-inset-top,0px));overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 22px calc(26px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.sheet.open .scrim{opacity:1}
+.sheet.open .panel{transform:none}
+.grab{display:block;width:44px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.grab-btn{display:block;width:100%;padding:4px 0 6px}
+.panel h2{font-size:22px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.panel .lead{font-size:16px;margin-top:6px}
+.howto{list-style:none;margin:20px 0 0;padding:0;counter-reset:s}
+.howto li{position:relative;padding:12px 0 12px 40px;border-top:1px solid var(--line);font-size:15.5px;line-height:1.45;counter-increment:s}
+.howto li::before{content:counter(s);position:absolute;left:0;top:12px;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;display:grid;place-items:center}
+.howto b{font-weight:600}
+.small{font-size:14px;color:var(--muted);margin-top:14px;line-height:1.45}
+.paste-box{width:100%;height:150px;margin-top:16px;border-radius:14px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);padding:12px 14px;font:inherit;font-size:16px;resize:none}
+.actions{display:flex;flex-direction:column;gap:8px;margin-top:18px}
+.act-danger{color:#c4372b}
+@media (prefers-color-scheme: dark){.act-danger{color:#ff8a7e}}
+
+/* Reproductor */
+.pl{text-align:center}
+.pl-art{width:min(264px,68vw);aspect-ratio:1;border-radius:18px;object-fit:cover;margin:8px auto 0;background:var(--line);box-shadow:var(--shadow)}
+.pl-show{font-size:14px;color:var(--muted);font-weight:500;margin-top:22px}
+.pl-title{font-size:21px;font-weight:700;line-height:1.24;letter-spacing:-.015em;margin-top:4px}
+.pl-date{font-size:14px;color:var(--muted);margin-top:6px}
+.seek{margin-top:24px}
+.seek input{width:100%;margin:0;height:26px;-webkit-appearance:none;appearance:none;background:transparent}
+.seek input::-webkit-slider-runnable-track{height:5px;border-radius:3px;background:linear-gradient(to right,var(--accent) var(--p,0%),var(--line) var(--p,0%))}
+.seek input::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);margin-top:-6.5px;border:0}
+.seek input::-moz-range-track{height:5px;border-radius:3px;background:var(--line)}
+.seek input::-moz-range-progress{height:5px;border-radius:3px;background:var(--accent)}
+.seek input::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:0}
+.times{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;margin-top:2px}
+.ctrl{display:flex;justify-content:center;align-items:center;gap:30px;margin-top:14px}
+.skip{width:52px;height:52px;display:grid;place-items:center;border-radius:50%}
+.skip:active{background:var(--line)}
+.skip svg{width:34px;height:34px}
+.play{width:74px;height:74px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.play svg{width:32px;height:32px}
+.play:active{transform:scale(.96)}
+.pl-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:24px}
+.pl-row .chip{display:inline-flex;align-items:center;text-decoration:none}
+.pl-row .chip.on{background:var(--accent-soft);border-color:transparent;color:var(--accent)}
+.pl-desc{text-align:left;white-space:pre-line;font-size:15px;line-height:1.55;color:var(--muted);margin-top:26px;padding-top:18px;border-top:1px solid var(--line);overflow-wrap:anywhere}
+
+/* Mini reproductor */
+.mini{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;z-index:20;background:var(--surface);border-radius:18px;box-shadow:var(--shadow);display:grid;grid-template-columns:44px 1fr 46px;gap:12px;align-items:center;padding:9px 9px 11px 10px;overflow:hidden}
+.mini img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--line)}
+.mini-t{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-s{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-open{text-align:left;min-width:0}
+.mini .play{width:44px;height:44px}
+.mini .play svg{width:20px;height:20px}
+.mini-bar{position:absolute;left:0;bottom:0;height:3px;background:var(--accent);width:0}
+
+/* Aviso */
+.toast{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:528px;margin:0 auto;z-index:60;background:var(--ink);color:var(--bg);border-radius:14px;padding:13px 16px;font-size:15px;display:flex;align-items:center;gap:14px;justify-content:space-between;box-shadow:var(--shadow);transform:translateY(20px);opacity:0;transition:transform .25s,opacity .25s;pointer-events:none}
+.toast.show{transform:none;opacity:1;pointer-events:auto}
+.toast button{color:var(--bg);font-weight:700;text-decoration:underline;text-underline-offset:3px;flex:none}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important}
+}
+</style>
+</head>
+<body>
+<main id="app">
+
+  <!-- Primera vez: traer la lista desde Podcasts -->
+  <section id="v-setup" hidden>
+    <header class="intro">
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 1024 1024"><rect width="1024" height="1024" fill="#2344dc"/><circle cx="384" cy="512" r="104" fill="#fff"/><path d="M519 351A210 210 0 0 1 519 673" fill="none" stroke="#fff" stroke-width="64" stroke-linecap="round"/><path d="M596 259A330 330 0 0 1 596 765" fill="none" stroke="#fff" stroke-width="64" stroke-linecap="round" opacity=".5"/></svg></div>
+      <h1>Por escuchar</h1>
+      <p class="lead">Los episodios nuevos de los podcasts que eliges, y nada más.</p>
+    </header>
+    <p class="body">Apple no permite que otras apps lean tu biblioteca de Podcasts. Por eso la lista de programas que sigues se trae con un atajo de la app Atajos. Se hace una vez, y de nuevo solo cuando quieras sumar programas.</p>
+    <ol class="steps">
+      <li><span class="step-n">1</span><div class="step-b"><h3>Crea el atajo «Mis podcasts»</h3><p>Son tres acciones en la app Atajos.</p><button class="link" data-act="help">Ver cómo crearlo</button></div></li>
+      <li><span class="step-n">2</span><div class="step-b"><h3>Ejecútalo</h3><p>Copia tus programas al portapapeles. Luego vuelve aquí.</p><button class="btn ghost" data-act="run">Abrir el atajo</button></div></li>
+      <li><span class="step-n">3</span><div class="step-b"><h3>Pega la lista</h3><p>La app busca cada programa en Apple Podcasts.</p><button class="btn primary paste-btn" data-act="paste">Pegar lista</button></div></li>
+    </ol>
+    <p class="status" id="setup-status" aria-live="polite"></p>
+    <button class="link alt" data-act="by-name">Prefiero buscar los programas por nombre</button>
+  </section>
+
+  <!-- Elegir programas (al inicio o para agregar) -->
+  <section id="v-pick" hidden>
+    <div class="bar"><button class="back" data-act="pick-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg><span id="pick-back-label">Atrás</span></button></div>
+    <div class="pick-head">
+      <h1 id="pick-title">Elige tus programas</h1>
+      <p class="lead" id="pick-lead"></p>
+      <div class="pick-tools" id="pick-tools" hidden>
+        <button class="chip" data-act="run">Actualizar desde Podcasts</button>
+        <button class="chip paste-btn" data-act="paste">Pegar lista</button>
+      </div>
+      <p class="status" id="pick-status" aria-live="polite"></p>
+      <p class="note" id="pick-note" hidden></p>
+    </div>
+    <input class="filter" id="pick-filter" type="search" placeholder="Filtrar por nombre" autocomplete="off" hidden>
+    <div class="selall" id="selall" hidden><span id="sel-count"></span><button class="link" data-act="toggle-all" id="toggle-all">Seleccionar todos</button></div>
+    <ul class="picklist" id="pick-list"></ul>
+    <p class="empty-pick" id="pick-empty" hidden></p>
+    <details class="byname" id="byname">
+      <summary>¿Falta alguno? Búscalo por nombre</summary>
+      <form class="searchrow" id="search-form" autocomplete="off">
+        <input type="search" id="search-q" placeholder="Nombre del programa" enterkeyhint="search">
+        <button class="btn ghost" type="submit">Buscar</button>
+      </form>
+      <ul class="picklist" id="search-res"></ul>
+    </details>
+    <div class="dock"><button class="btn primary" id="pick-go" data-act="pick-go">Ver episodios</button></div>
+  </section>
+
+  <!-- Episodios pendientes -->
+  <section id="v-home" hidden>
+    <header class="top">
+      <div>
+        <h1>Por escuchar</h1>
+        <p class="sub" id="home-sub"></p>
+      </div>
+      <div class="top-act">
+        <button class="icon" data-act="refresh" id="refresh-btn" aria-label="Buscar episodios nuevos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg></button>
+        <button class="icon" data-act="shows" aria-label="Programas y ajustes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg></button>
+      </div>
+    </header>
+    <div class="shelf" id="shelf"></div>
+    <div id="feed"></div>
+    <p class="foot" id="home-foot"></p>
+  </section>
+
+  <!-- Programas y ajustes -->
+  <section id="v-shows" hidden>
+    <div class="bar"><button class="back" data-act="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Por escuchar</button></div>
+    <h1>Programas</h1>
+    <ul class="showlist" id="show-list"></ul>
+    <button class="btn primary wide" data-act="add">Agregar programas</button>
+    <h2 class="sec">Ajustes</h2>
+    <div class="setting">
+      <h3>Episodios que se muestran</h3>
+      <p>Los publicados en los últimos días que elijas.</p>
+      <div class="seg" id="seg-days">
+        <button data-days="7">7 días</button><button data-days="14">14 días</button><button data-days="30">30 días</button><button data-days="90">90 días</button>
+      </div>
+    </div>
+    <button class="row-btn" data-act="mark-all">Marcar todos los pendientes como escuchados</button>
+    <button class="row-btn" data-act="help">Cómo crear el atajo «Mis podcasts»</button>
+    <p class="foot" id="shows-foot"></p>
+  </section>
+</main>
+
+<!-- Reproductor pequeño -->
+<div class="mini" id="mini" hidden>
+  <img id="mini-art" alt="">
+  <button class="mini-open" data-act="open-cur"><div class="mini-t" id="mini-t"></div><div class="mini-s" id="mini-s"></div></button>
+  <button class="play" data-act="toggle" id="mini-play" aria-label="Reproducir"></button>
+  <div class="mini-bar" id="mini-bar"></div>
+</div>
+
+<!-- Hoja: reproductor -->
+<div class="sheet" id="sh-player" hidden>
+  <div class="scrim" data-act="close"></div>
+  <div class="panel pl" role="dialog" aria-modal="true" aria-labelledby="pl-title">
+    <button class="grab-btn" data-act="close" aria-label="Cerrar"><span class="grab"></span></button>
+    <img class="pl-art" id="pl-art" alt="">
+    <p class="pl-show" id="pl-show"></p>
+    <h2 class="pl-title" id="pl-title"></h2>
+    <p class="pl-date" id="pl-date"></p>
+    <div class="seek" id="pl-seekbox">
+      <input type="range" id="pl-seek" min="0" max="1000" value="0" step="1" aria-label="Posición del episodio">
+      <div class="times"><span id="pl-pos">0:00</span><span id="pl-left"></span></div>
+    </div>
+    <div class="ctrl" id="pl-ctrl">
+      <button class="skip" data-act="back15" aria-label="Retroceder 15 segundos"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 13.5A12 12 0 1 1 6 18"/><path d="M7 6.5v7h7"/><text x="18.5" y="22.5" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" stroke="none" font-family="inherit">15</text></svg></button>
+      <button class="play" data-act="toggle" id="pl-play" aria-label="Reproducir"></button>
+      <button class="skip" data-act="fwd30" aria-label="Adelantar 30 segundos"><svg viewBox="0 0 36 36" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M28.5 13.5A12 12 0 1 0 30 18"/><path d="M29 6.5v7h-7"/><text x="17.5" y="22.5" text-anchor="middle" font-size="10" font-weight="700" fill="currentColor" stroke="none" font-family="inherit">30</text></svg></button>
+    </div>
+    <div class="pl-row">
+      <button class="chip" data-act="speed" id="pl-speed">1×</button>
+      <button class="chip" data-act="mark" id="pl-mark">Marcar como escuchado</button>
+      <a class="chip" id="pl-open" href="#">Abrir en Podcasts</a>
+    </div>
+    <p class="pl-desc" id="pl-desc"></p>
+  </div>
+</div>
+
+<!-- Hoja: cómo crear el atajo -->
+<div class="sheet" id="sh-help" hidden>
+  <div class="scrim" data-act="close"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <button class="grab-btn" data-act="close" aria-label="Cerrar"><span class="grab"></span></button>
+    <h2 id="help-title">Crear el atajo «Mis podcasts»</h2>
+    <p class="lead">Copia al portapapeles el código de cada programa que sigues en Podcasts.</p>
+    <ol class="howto">
+      <li>Abre la app <b>Atajos</b>, entra a <b>Atajos</b> y toca <b>+</b>.</li>
+      <li>Toca el nombre arriba, elige <b>Renombrar</b> y escribe <b>Mis podcasts</b>, tal cual.</li>
+      <li>En el buscador de acciones escribe <b>podcast</b> y agrega <b>Obtener podcasts de la biblioteca</b>.</li>
+      <li>Agrega <b>Obtener detalles del podcast</b>. Toca el detalle en azul y elige <b>ID de la tienda</b> (Store ID).</li>
+      <li>Busca y agrega <b>Copiar al portapapeles</b>.</li>
+      <li>Toca <b>OK</b>. La primera vez que lo ejecutes, iOS pedirá permiso para usar Podcasts: toca <b>Permitir</b>.</li>
+    </ol>
+    <p class="small">Los nombres de las acciones pueden cambiar un poco según la versión de iOS; buscar «podcast» las muestra todas. Si no encuentras «ID de la tienda», omite el paso 4: la app intentará reconocer los programas por su nombre, con menos precisión.</p>
+    <div class="actions"><button class="btn primary" data-act="close">Entendido</button></div>
+  </div>
+</div>
+
+<!-- Hoja: pegar a mano -->
+<div class="sheet" id="sh-paste" hidden>
+  <div class="scrim" data-act="close"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="paste-title">
+    <button class="grab-btn" data-act="close" aria-label="Cerrar"><span class="grab"></span></button>
+    <h2 id="paste-title">Pegar la lista</h2>
+    <p class="lead">Mantén presionado el recuadro, toca <b>Pegar</b> y luego <b>Leer programas</b>.</p>
+    <textarea class="paste-box" id="paste-box" placeholder="Aquí va lo que copió el atajo"></textarea>
+    <div class="actions"><button class="btn primary" data-act="paste-read">Leer programas</button></div>
+  </div>
+</div>
+
+<!-- Hoja: acciones de un programa -->
+<div class="sheet" id="sh-menu" hidden>
+  <div class="scrim" data-act="close"></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="menu-title">
+    <button class="grab-btn" data-act="close" aria-label="Cerrar"><span class="grab"></span></button>
+    <h2 id="menu-title"></h2>
+    <p class="lead" id="menu-lead"></p>
+    <div class="actions" id="menu-actions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><span id="toast-t"></span><button id="toast-b" hidden></button></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- Estado guardado en el iPhone ---------- */
+var KEY = 'porescuchar.v1';
+var SHORTCUT = 'Mis podcasts';
+var DAY = 864e5;
+var TTL = 15 * 60e3;          // no vuelve a consultar un programa antes de 15 minutos
+var SPEEDS = [1, 1.2, 1.5, 1.8, 2];
+
+function blank() {
+  return { v: 1, setupDone: false, library: [], libraryAt: 0, shows: [], played: {}, progress: {},
+           eps: {}, fetchedAt: {}, updatedAt: 0, days: 14, speed: 1, filter: null, cur: null, swiped: false, intro: null };
+}
+var S = (function () {
+  try { var s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.v === 1) return Object.assign(blank(), s); } catch (e) {}
+  return blank();
+})();
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+/* ---------- Utilidades ---------- */
+function $(s, r) { return (r || document).querySelector(s); }
+function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function https(u) { return String(u || '').replace(/^http:\/\//i, 'https://'); }
+function artSize(u, n) { return u ? https(u).replace(/\/\d+x\d+(bb)?\.(jpg|jpeg|png|webp)$/i, '/' + n + 'x' + n + 'bb.$2') : ''; }
+function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim(); }
+function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+var decoder = document.createElement('textarea');
+function cleanText(html) {
+  var s = String(html || '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|li)>/gi, '\n').replace(/<[^>]+>/g, '');
+  decoder.innerHTML = s; s = decoder.value;
+  return s.replace(/[ \t]+/g, ' ').replace(/\n\s*\n\s*\n+/g, '\n\n').trim();
+}
+function startOfDay(t) { var d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); }
+var fWeek = new Intl.DateTimeFormat('es-CL', { weekday: 'long' });
+var fDay = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'long' });
+var fDayY = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
+var fFull = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' });
+function dayLabel(t) {
+  var diff = Math.round((startOfDay(Date.now()) - startOfDay(t)) / DAY);
+  if (diff <= 0) return 'Hoy';
+  if (diff === 1) return 'Ayer';
+  if (diff < 7) return cap(fWeek.format(t));
+  return new Date(t).getFullYear() === new Date().getFullYear() ? fDay.format(t) : fDayY.format(t);
+}
+function longDate(t) {
+  var diff = Math.round((startOfDay(Date.now()) - startOfDay(t)) / DAY);
+  if (diff <= 0) return 'Publicado hoy';
+  if (diff === 1) return 'Publicado ayer';
+  return 'Publicado el ' + (diff < 300 ? fFull.format(t) : fDayY.format(t));
+}
+function mins(sec) {
+  var m = Math.max(1, Math.round(sec / 60));
+  if (m < 60) return m + ' min';
+  var h = Math.floor(m / 60), r = m % 60;
+  return h + ' h' + (r ? ' ' + r + ' min' : '');
+}
+function clock(sec) {
+  sec = Math.max(0, Math.floor(sec || 0));
+  var h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+  return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(s).padStart(2, '0');
+}
+function ago(t) {
+  if (!t) return '';
+  var m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return 'Actualizado hace un momento';
+  if (m < 60) return 'Actualizado hace ' + plural(m, 'minuto', 'minutos');
+  var h = Math.round(m / 60);
+  if (h < 24) return 'Actualizado hace ' + plural(h, 'hora', 'horas');
+  return 'Actualizado el ' + fDay.format(t);
+}
+function speedLabel(x) { return String(x).replace('.', ',') + '×'; }
+
+/* ---------- Apple Podcasts (directorio público, sin cuenta) ---------- */
+var jn = 0;
+function jsonp(url, ms) {
+  return new Promise(function (resolve, reject) {
+    var cb = '__pod' + (++jn) + Date.now().toString(36);
+    var el = document.createElement('script');
+    var done = false;
+    function finish() { done = true; clearTimeout(timer); window[cb] = function () {}; el.remove(); }
+    var timer = setTimeout(function () { if (!done) { finish(); reject(new Error('timeout')); } }, ms || 15000);
+    window[cb] = function (data) { if (done) return; finish(); resolve(data); };
+    el.onerror = function () { if (done) return; finish(); reject(new Error('network')); };
+    el.src = url + (url.indexOf('?') < 0 ? '?' : '&') + 'callback=' + cb;
+    document.head.appendChild(el);
+  });
+}
+function itunes(path, params) {
+  var q = Object.keys(params).map(function (k) { return k + '=' + encodeURIComponent(params[k]).replace(/%2C/g, ','); }).join('&');
+  return jsonp('https://itunes.apple.com/' + path + '?' + q).then(function (d) { return (d && d.results) || []; });
+}
+function toShow(r, cc) {
+  return { id: String(r.collectionId), name: r.collectionName || r.trackName || '', artist: r.artistName || '',
+           art: https(r.artworkUrl600 || r.artworkUrl100 || ''), cc: (cc || 'us').toLowerCase() };
+}
+function toEp(r) {
+  return { id: String(r.trackId), show: String(r.collectionId), t: r.trackName || '', d: Date.parse(r.releaseDate) || 0,
+           ms: +r.trackTimeMillis || 0, url: https(r.episodeUrl || ''), link: r.trackViewUrl || '',
+           art: https(r.artworkUrl600 || r.artworkUrl160 || ''), desc: cleanText(r.description || r.shortDescription || '').slice(0, 1400) };
+}
+
+/* Lo que copia el atajo: un código por línea (ID de la tienda), enlaces de Apple Podcasts o nombres. */
+function parseList(text) {
+  var ids = [], names = [], seen = {};
+  String(text || '').split(/[\r\n]+/).forEach(function (line) {
+    line = line.trim();
+    if (!line) return;
+    var m = line.match(/(?:\/id|[?&]id=)(\d{5,})/i);
+    if (m) { if (!seen[m[1]]) { seen[m[1]] = 1; ids.push(m[1]); } return; }
+    if (/^[\d\s,;.]+$/.test(line)) {
+      line.split(/[^\d]+/).forEach(function (x) { if (x.length >= 5 && !seen[x]) { seen[x] = 1; ids.push(x); } });
+      return;
+    }
+    if (/^[a-z]+:\/\//i.test(line)) return;
+    if (line.length <= 140 && !seen['n:' + norm(line)]) { seen['n:' + norm(line)] = 1; names.push(line); }
+  });
+  return { ids: ids, names: names };
+}
+
+function importLibrary(text, step) {
+  var p = parseList(text);
+  if (!p.ids.length && !p.names.length) return Promise.reject(new Error('empty'));
+  var found = {}, order = [];
+  function add(show) { if (!found[show.id]) { found[show.id] = show; order.push(show.id); } }
+  function lookupIds(list, cc) {
+    var chunks = [];
+    for (var i = 0; i < list.length; i += 40) chunks.push(list.slice(i, i + 40));
+    return chunks.reduce(function (pr, ch) {
+      return pr.then(function () {
+        return itunes('lookup', { id: ch.join(','), country: cc }).then(function (res) {
+          res.forEach(function (r) { if (r.kind === 'podcast' && r.collectionId) add(toShow(r, cc)); });
+        });
+      });
+    }, Promise.resolve());
+  }
+  var missingNames = [];
+  var chain = Promise.resolve();
+  if (p.ids.length) {
+    step('Buscando ' + plural(p.ids.length, 'programa', 'programas') + '…');
+    chain = lookupIds(p.ids, 'US').then(function () {
+      var miss = p.ids.filter(function (id) { return !found[id]; });
+      if (miss.length) return lookupIds(miss, 'CL').catch(function () {});
+    });
+  }
+  p.names.forEach(function (name, i) {
+    chain = chain.then(function () {
+      step('Buscando por nombre: ' + (i + 1) + ' de ' + p.names.length + '…');
+      return itunes('search', { term: name, media: 'podcast', entity: 'podcast', limit: 5, country: 'CL' }).then(function (res) {
+        var exact = res.filter(function (r) { return norm(r.collectionName) === norm(name); })[0];
+        var best = exact || res[0];
+        if (!best) { missingNames.push(name); return; }
+        var s = toShow(best, 'CL'); if (!exact) s.byName = true; add(s);
+      }, function () { missingNames.push(name); });
+    });
+  });
+  return chain.then(function () {
+    var missing = p.ids.filter(function (id) { return !found[id]; }).length + missingNames.length;
+    return { shows: order.map(function (id) { return found[id]; }), missing: missing };
+  });
+}
+
+/* ---------- Episodios ---------- */
+var refreshing = false, lastFail = false;
+function refresh(force) {
+  if (refreshing || !S.shows.length) return Promise.resolve();
+  var now = Date.now();
+  var due = S.shows.filter(function (s) { return force || !S.fetchedAt[s.id] || now - S.fetchedAt[s.id] > TTL; });
+  if (!due.length) { renderHome(); return Promise.resolve(); }
+  refreshing = true; setSpin(true); renderHome();
+  var groups = {};
+  due.forEach(function (s) { var c = s.cc || 'us'; (groups[c] = groups[c] || []).push(s.id); });
+  var jobs = [];
+  Object.keys(groups).forEach(function (cc) { for (var i = 0; i < groups[cc].length; i += 8) jobs.push({ cc: cc, ids: groups[cc].slice(i, i + 8) }); });
+  var k = 0, fails = 0;
+  function worker() {
+    if (k >= jobs.length) return Promise.resolve();
+    var j = jobs[k++];
+    return itunes('lookup', { id: j.ids.join(','), entity: 'podcastEpisode', limit: 15, country: j.cc.toUpperCase() })
+      .then(function (res) { applyEps(j.ids, res); }, function () { fails++; })
+      .then(worker);
+  }
+  return Promise.all([worker(), worker()]).then(function () {
+    if (fails < jobs.length) S.updatedAt = Date.now();
+    lastFail = fails === jobs.length;
+    prune(); save();
+    refreshing = false; setSpin(false); renderHome();
+    if (fails) toast(fails === jobs.length ? 'No hubo conexión con Apple Podcasts. Se muestran los episodios guardados.' : 'Algunos programas no se pudieron actualizar. Inténtalo de nuevo en un rato.');
+  });
+}
+function applyEps(ids, res) {
+  var by = {};
+  res.forEach(function (r) {
+    var sid = String(r.collectionId);
+    if (r.wrapperType === 'podcastEpisode') (by[sid] = by[sid] || []).push(toEp(r));
+    else if (r.kind === 'podcast') {
+      var s = showById(sid);
+      if (s) { if (r.artworkUrl600) s.art = https(r.artworkUrl600); if (r.collectionName) s.name = r.collectionName; }
+    }
+  });
+  var now = Date.now();
+  ids.forEach(function (id) {
+    var map = {};
+    (S.eps[id] || []).concat(by[id] || []).forEach(function (e) { map[e.id] = e; });
+    S.eps[id] = Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) { return b.d - a.d; }).slice(0, 40);
+    S.fetchedAt[id] = now;
+  });
+}
+function prune() {
+  var lim = Date.now() - 120 * DAY;
+  Object.keys(S.eps).forEach(function (id) {
+    if (!showById(id)) { delete S.eps[id]; delete S.fetchedAt[id]; return; }
+    S.eps[id] = S.eps[id].filter(function (e) { return e.d >= lim || S.progress[e.id] || S.cur === e.id; });
+  });
+  Object.keys(S.played).forEach(function (id) { if (S.played[id] < lim - 60 * DAY) delete S.played[id]; });
+}
+function showById(id) { for (var i = 0; i < S.shows.length; i++) if (S.shows[i].id === id) return S.shows[i]; return null; }
+function epById(id) {
+  for (var k in S.eps) { var l = S.eps[k]; for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i]; }
+  return null;
+}
+function pending() {
+  var since = Date.now() - S.days * DAY, out = [];
+  S.shows.forEach(function (s) {
+    (S.eps[s.id] || []).forEach(function (e) { if (!S.played[e.id] && (e.d >= since || S.progress[e.id] || S.cur === e.id)) out.push(e); });
+  });
+  return out.sort(function (a, b) { return b.d - a.d; });
+}
+
+/* ---------- Navegación ---------- */
+var view = null;
+function go(v) {
+  view = v;
+  ['setup', 'pick', 'home', 'shows'].forEach(function (n) { $('#v-' + n).hidden = n !== v; });
+  if (v === 'home') renderHome();
+  if (v === 'shows') renderShows();
+  updateMini();
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Pantalla principal ---------- */
+var I = {
+  play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6a1 1 0 0 0 1.5.86l11-6.8a1 1 0 0 0 0-1.72l-11-6.8A1 1 0 0 0 8 5.2z"/></svg>',
+  pause: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4.2" height="15" rx="1.3"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.3"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  more: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="18.5" cy="12" r="1.9"/></svg>'
+};
+
+function renderHome() {
+  if (view !== 'home') return;
+  var all = pending();
+  var counts = {};
+  all.forEach(function (e) { counts[e.show] = (counts[e.show] || 0) + 1; });
+  if (S.filter && !showById(S.filter)) S.filter = null;
+  var list = S.filter ? all.filter(function (e) { return e.show === S.filter; }) : all;
+  var loading = refreshing && !Object.keys(S.fetchedAt).length;
+
+  // Subtítulo
+  var sub = $('#home-sub');
+  if (S.filter) {
+    sub.innerHTML = '<span>' + esc(plural(list.length, 'episodio', 'episodios')) + ' de ' + esc(showById(S.filter).name) + '</span><button class="link" data-act="clear-filter">Ver todos</button>';
+  } else if (loading) {
+    sub.textContent = 'Buscando episodios…';
+  } else {
+    var nShows = Object.keys(counts).length;
+    sub.textContent = !S.shows.length ? '' : all.length ? plural(all.length, 'episodio', 'episodios') + ' en ' + plural(nShows, 'programa', 'programas') : 'Estás al día';
+  }
+
+  // Estante de portadas: filtra por programa
+  var shelf = $('#shelf');
+  if (S.shows.length > 1 && (all.length || S.filter)) {
+    var latest = {};
+    all.forEach(function (e) { if (!latest[e.show]) latest[e.show] = e.d; });
+    var order = S.shows.slice().sort(function (a, b) { return (latest[b.id] || 0) - (latest[a.id] || 0) || a.name.localeCompare(b.name, 'es'); });
+    shelf.hidden = false;
+    shelf.innerHTML = order.map(function (s) {
+      var n = counts[s.id] || 0;
+      return '<button class="cover' + (n ? '' : ' idle') + '" data-act="filter" data-id="' + esc(s.id) + '" aria-pressed="' + (S.filter === s.id) + '" aria-label="' + esc(s.name + ': ' + plural(n, 'pendiente', 'pendientes')) + '">' +
+        '<img src="' + esc(artSize(s.art, 160)) + '" alt="" loading="lazy">' + (n ? '<span class="n">' + n + '</span>' : '') + '</button>';
+    }).join('');
+  } else { shelf.hidden = true; shelf.innerHTML = ''; }
+
+  // Tarjeta para partir desde hoy (Apple no comparte qué episodios ya escuchaste)
+  var startHTML = '';
+  if (S.intro && S.intro.length && !refreshing && !S.filter && S.intro.every(function (id) { return S.fetchedAt[id]; })) {
+    var introN = all.filter(function (e) { return S.intro.indexOf(e.show) >= 0; }).length;
+    if (!introN) { S.intro = null; save(); }
+    else {
+      var first = S.intro.length === S.shows.length;
+      startHTML = '<div class="start"><h2>' + (first ? '¿Ya escuchaste algunos?' : '¿Ya escuchaste los de los programas nuevos?') + '</h2>' +
+        '<p>Apple no comparte qué episodios escuchaste en Podcasts, así que aquí aparecen todos los de los últimos ' + S.days + ' días' + (first ? '' : ' de los programas que agregaste') + '. ' +
+        'Si estás al día, parte desde hoy: solo verás los episodios que se publiquen desde ahora.</p>' +
+        '<div class="start-act"><button class="btn primary" data-act="start-today">Partir desde hoy</button><button class="btn ghost" data-act="start-keep">Mantener la lista</button></div></div>';
+    }
+  }
+
+  // Lista
+  var feed = $('#feed');
+  if (!S.shows.length) {
+    feed.innerHTML = '<div class="empty"><h2>No hay programas elegidos</h2><p>Agrega los programas que sigues en Podcasts para ver aquí sus episodios nuevos.</p><button class="btn primary" data-act="add">Agregar programas</button></div>';
+  }
+  else if (loading) { feed.innerHTML = ''; }
+  else if (!list.length && lastFail && !Object.keys(S.fetchedAt).length) {
+    feed.innerHTML = '<div class="empty"><h2>No se pudieron cargar los episodios</h2><p>No hubo conexión con Apple Podcasts. Revisa tu conexión a internet.</p><button class="btn ghost" data-act="refresh">Intentar de nuevo</button></div>';
+  }
+  else if (!list.length) {
+    feed.innerHTML = '<div class="empty"><h2>' + (S.filter ? 'Nada pendiente en este programa' : 'Nada pendiente') + '</h2>' +
+      '<p>Se muestran los episodios publicados en los últimos ' + S.days + ' días que no has marcado como escuchados.</p>' +
+      '<button class="btn ghost" data-act="refresh">Buscar episodios nuevos</button></div>';
+  } else {
+    var html = '', curDay = null;
+    list.forEach(function (e) {
+      var label = dayLabel(e.d);
+      if (label !== curDay) { if (curDay !== null) html += '</ul>'; html += '<h2 class="day">' + esc(label) + '</h2><ul class="eps">'; curDay = label; }
+      html += rowHTML(e);
+    });
+    html += '</ul>';
+    if (!S.swiped) html += '<p class="hint">Desliza un episodio hacia la izquierda para marcarlo como escuchado.</p>';
+    feed.innerHTML = startHTML + html;
+  }
+  $('#home-foot').textContent = refreshing ? '' : ago(S.updatedAt);
+}
+function rowHTML(e) {
+  var s = showById(e.show) || {};
+  var pos = S.progress[e.id] || 0, total = e.ms / 1000;
+  var meta;
+  if (S.cur === e.id && !audio.paused) meta = '<span class="now">Sonando</span>';
+  else if (pos > 5 && total) meta = '<span>Quedan ' + mins(total - pos) + '</span><span class="prog"><i style="width:' + Math.min(100, pos / total * 100).toFixed(1) + '%"></i></span>';
+  else meta = total ? '<span>' + mins(total) + '</span>' : '';
+  return '<li class="ep" data-id="' + esc(e.id) + '">' +
+    '<div class="ep-act" aria-hidden="true">Escuchado ' + I.check + '</div>' +
+    '<div class="ep-in" role="button" tabindex="0" aria-label="' + esc(e.t) + '">' +
+      '<img class="ep-art" src="' + esc(artSize(e.art || s.art, 160)) + '" alt="" loading="lazy">' +
+      '<div><div class="ep-show">' + esc(s.name || '') + '</div><div class="ep-title">' + esc(e.t) + '</div><div class="ep-meta">' + meta + '</div></div>' +
+    '</div></li>';
+}
+function setSpin(on) { $('#refresh-btn').classList.toggle('spin', on); }
+
+/* Marcar como escuchado (con opción de deshacer) */
+function markPlayed(id, opts) {
+  opts = opts || {};
+  S.played[id] = Date.now();
+  var prevPos = S.progress[id];
+  delete S.progress[id];
+  save();
+  if (!opts.silent) {
+    toast('Marcado como escuchado', 'Deshacer', function () {
+      delete S.played[id]; if (prevPos) S.progress[id] = prevPos; save(); renderHome(); syncPlayer();
+    });
+  }
+  syncPlayer();
+}
+function removeRow(li, done) {
+  li.style.height = li.offsetHeight + 'px';
+  li.querySelector('.ep-in').style.transform = 'translateX(-110%)';
+  requestAnimationFrame(function () { requestAnimationFrame(function () { li.style.height = '0px'; li.style.opacity = '0'; }); });
+  setTimeout(done, 260);
+}
+
+/* Deslizar para marcar */
+var sw = null, blockClick = 0;
+var feedEl = $('#feed');
+feedEl.addEventListener('pointerdown', function (e) {
+  var li = e.target.closest('.ep'); if (!li || e.button > 0) return;
+  sw = { li: li, x: e.clientX, y: e.clientY, dx: 0, on: false };
+});
+feedEl.addEventListener('pointermove', function (e) {
+  if (!sw) return;
+  var dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+  if (!sw.on) {
+    if (dx < -10 && Math.abs(dx) > Math.abs(dy) * 1.3) { sw.on = true; sw.li.classList.add('dragging'); try { sw.li.setPointerCapture(e.pointerId); } catch (x) {} }
+    else if (Math.abs(dy) > 10 || dx > 10) { sw = null; return; }
+    else return;
+  }
+  sw.dx = Math.min(0, dx);
+  sw.li.querySelector('.ep-in').style.transform = 'translateX(' + sw.dx + 'px)';
+  sw.li.classList.toggle('armed', sw.dx < -88);
+});
+function endSwipe() {
+  if (!sw) return;
+  var s = sw; sw = null;
+  if (!s.on) return;
+  blockClick = Date.now();
+  s.li.classList.remove('dragging');
+  if (s.dx < -88) {
+    var id = s.li.dataset.id;
+    if (!S.swiped) { S.swiped = true; }
+    removeRow(s.li, function () { markPlayed(id); renderHome(); });
+  } else {
+    s.li.querySelector('.ep-in').style.transform = '';
+    s.li.classList.remove('armed');
+  }
+}
+feedEl.addEventListener('pointerup', endSwipe);
+feedEl.addEventListener('pointercancel', function () {
+  if (sw && sw.on) { sw.li.querySelector('.ep-in').style.transform = ''; sw.li.classList.remove('dragging', 'armed'); }
+  sw = null;
+});
+feedEl.addEventListener('click', function (e) {
+  var li = e.target.closest('.ep'); if (!li) return;
+  if (Date.now() - blockClick < 400) return;
+  openPlayer(li.dataset.id);
+});
+feedEl.addEventListener('keydown', function (e) {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('ep-in')) { e.preventDefault(); openPlayer(e.target.closest('.ep').dataset.id); }
+});
+
+/* ---------- Reproductor ---------- */
+var audio = new Audio();
+audio.preload = 'none';
+var shown = null;           // episodio abierto en la hoja
+var lastSave = 0;
+
+function curEp() { return S.cur ? epById(S.cur) : null; }
+function startEp(ep) {
+  if (S.cur !== ep.id || !audio.src) {
+    var prev = curEp();
+    if (prev && audio.src && audio.currentTime > 5 && !S.played[prev.id]) S.progress[prev.id] = audio.currentTime;
+    S.cur = ep.id; save();
+    audio.src = ep.url;
+    var pos = S.progress[ep.id] || 0;
+    audio.addEventListener('loadedmetadata', function once() {
+      audio.removeEventListener('loadedmetadata', once);
+      if (pos && audio.duration && pos < audio.duration - 5) { try { audio.currentTime = pos; } catch (e) {} }
+      audio.playbackRate = S.speed;
+    });
+    mediaSession(ep);
+  }
+  audio.playbackRate = S.speed;
+  var p = audio.play();
+  if (p && p.catch) p.catch(function (err) {
+    if (err && (err.name === 'NotAllowedError' || err.name === 'AbortError')) return;
+    toast('No se pudo reproducir este episodio. Prueba con «Abrir en Podcasts».');
+  });
+}
+function togglePlay() {
+  var ep = shown && view !== null && !$('#sh-player').hidden ? shown : curEp();
+  if (!ep) return;
+  if (S.cur === ep.id && audio.src && !audio.paused) { audio.pause(); return; }
+  if (!ep.url) { toast('Este episodio solo se puede escuchar en la app Podcasts.'); return; }
+  startEp(ep);
+}
+function seekBy(sec) {
+  var ep = curEp();
+  if (!ep || !shown || shown.id !== ep.id || !audio.src) return;
+  audio.currentTime = Math.max(0, Math.min((audio.duration || 1e9) - 1, audio.currentTime + sec));
+}
+function openPlayer(id) {
+  var ep = epById(id); if (!ep) return;
+  shown = ep;
+  var s = showById(ep.show) || {};
+  $('#pl-art').src = artSize(ep.art || s.art, 600);
+  $('#pl-show').textContent = s.name || '';
+  $('#pl-title').textContent = ep.t;
+  $('#pl-date').textContent = longDate(ep.d) + (ep.ms ? ', ' + mins(ep.ms / 1000) : '');
+  $('#pl-desc').textContent = ep.desc || '';
+  $('#pl-desc').hidden = !ep.desc;
+  var a = $('#pl-open');
+  if (ep.link) { a.hidden = false; a.href = ep.link.replace(/^https?:\/\//i, 'podcasts://'); } else a.hidden = true;
+  $('#pl-speed').textContent = speedLabel(S.speed);
+  openSheet('#sh-player');
+  syncPlayer();
+}
+function syncPlayer() {
+  var ep = shown;
+  if (ep && !$('#sh-player').hidden) {
+    var isCur = S.cur === ep.id && audio.src;
+    var playing = isCur && !audio.paused;
+    $('#pl-play').innerHTML = playing ? I.pause : I.play;
+    $('#pl-play').setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
+    var dur = (isCur && audio.duration && isFinite(audio.duration)) ? audio.duration : ep.ms / 1000;
+    var pos = isCur ? audio.currentTime : (S.progress[ep.id] || 0);
+    if (!seeking) {
+      var pct = dur ? Math.min(1, pos / dur) : 0;
+      $('#pl-seek').value = Math.round(pct * 1000);
+      $('#pl-seek').style.setProperty('--p', (pct * 100).toFixed(2) + '%');
+      $('#pl-pos').textContent = clock(pos);
+      $('#pl-left').textContent = dur ? '−' + clock(dur - pos) : '';
+    }
+    $('#pl-seekbox').hidden = !ep.url;
+    $('#pl-ctrl').querySelectorAll('.skip').forEach(function (b) { b.disabled = !isCur; b.style.opacity = isCur ? 1 : .35; });
+    var played = !!S.played[ep.id];
+    $('#pl-mark').textContent = played ? 'Marcar como pendiente' : 'Marcar como escuchado';
+    $('#pl-mark').classList.toggle('on', played);
+  }
+  updateMini();
+}
+function updateMini() {
+  var ep = curEp();
+  var mini = $('#mini');
+  var show = ep && view === 'home' && $('#sh-player').hidden && (audio.src || S.progress[ep.id]);
+  mini.hidden = !show;
+  if (!show) return;
+  var s = showById(ep.show) || {};
+  $('#mini-art').src = artSize(ep.art || s.art, 160);
+  $('#mini-t').textContent = ep.t;
+  $('#mini-s').textContent = s.name || '';
+  var playing = audio.src && !audio.paused;
+  $('#mini-play').innerHTML = playing ? I.pause : I.play;
+  $('#mini-play').setAttribute('aria-label', playing ? 'Pausar' : 'Reproducir');
+  var dur = audio.duration && isFinite(audio.duration) ? audio.duration : ep.ms / 1000;
+  var pos = audio.src ? audio.currentTime : (S.progress[ep.id] || 0);
+  $('#mini-bar').style.width = dur ? Math.min(100, pos / dur * 100) + '%' : '0';
+}
+function mediaSession(ep) {
+  if (!('mediaSession' in navigator)) return;
+  var s = showById(ep.show) || {};
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: ep.t, artist: s.name || '', album: s.artist || '',
+      artwork: [{ src: artSize(ep.art || s.art, 600), sizes: '600x600', type: 'image/jpeg' }] });
+    navigator.mediaSession.setActionHandler('play', function () { audio.play(); });
+    navigator.mediaSession.setActionHandler('pause', function () { audio.pause(); });
+    navigator.mediaSession.setActionHandler('seekbackward', function () { audio.currentTime = Math.max(0, audio.currentTime - 15); });
+    navigator.mediaSession.setActionHandler('seekforward', function () { audio.currentTime = Math.min(audio.duration || 1e9, audio.currentTime + 30); });
+    navigator.mediaSession.setActionHandler('seekto', function (d) { if (d && d.seekTime != null) audio.currentTime = d.seekTime; });
+  } catch (e) {}
+}
+audio.addEventListener('timeupdate', function () {
+  var ep = curEp(); if (!ep) return;
+  var now = Date.now();
+  if (now - lastSave > 5000 && audio.currentTime > 5) { lastSave = now; S.progress[ep.id] = audio.currentTime; save(); }
+  if (audio.duration && isFinite(audio.duration) && audio.duration - audio.currentTime < 20 && audio.currentTime > 60 && !S.played[ep.id]) {
+    markPlayed(ep.id, { silent: true }); renderHome();
+  }
+  syncPlayer();
+});
+['play', 'pause', 'loadedmetadata'].forEach(function (ev) {
+  audio.addEventListener(ev, function () {
+    if (ev === 'pause') { var ep = curEp(); if (ep && audio.currentTime > 5 && !S.played[ep.id]) { S.progress[ep.id] = audio.currentTime; save(); } }
+    if (ev === 'play') audio.playbackRate = S.speed;
+    syncPlayer(); renderHome();
+  });
+});
+audio.addEventListener('ended', function () {
+  var ep = curEp();
+  if (ep && !S.played[ep.id]) markPlayed(ep.id, { silent: true });
+  syncPlayer(); renderHome();
+});
+audio.addEventListener('error', function () {
+  if (!audio.src || !curEp()) return;
+  toast('No se pudo cargar el audio. Prueba con «Abrir en Podcasts».');
+});
+var seeking = false;
+var seekEl = $('#pl-seek');
+seekEl.addEventListener('input', function () {
+  seeking = true;
+  var ep = shown; if (!ep) return;
+  var isCur = S.cur === ep.id && audio.src;
+  var dur = (isCur && audio.duration && isFinite(audio.duration)) ? audio.duration : ep.ms / 1000;
+  var pos = seekEl.value / 1000 * dur;
+  seekEl.style.setProperty('--p', (seekEl.value / 10) + '%');
+  $('#pl-pos').textContent = clock(pos);
+  $('#pl-left').textContent = dur ? '−' + clock(dur - pos) : '';
+});
+seekEl.addEventListener('change', function () {
+  var ep = shown; seeking = false; if (!ep) return;
+  var isCur = S.cur === ep.id && audio.src;
+  var dur = (isCur && audio.duration && isFinite(audio.duration)) ? audio.duration : ep.ms / 1000;
+  var pos = seekEl.value / 1000 * dur;
+  if (isCur) { try { audio.currentTime = pos; } catch (e) {} }
+  else { if (pos > 5) S.progress[ep.id] = pos; else delete S.progress[ep.id]; save(); renderHome(); }
+  syncPlayer();
+});
+
+/* ---------- Hojas inferiores ---------- */
+function openSheet(sel) {
+  var el = $(sel);
+  el.hidden = false;
+  requestAnimationFrame(function () { requestAnimationFrame(function () { el.classList.add('open'); }); });
+  updateMini();
+}
+function closeSheet(el) {
+  el.classList.remove('open');
+  setTimeout(function () { el.hidden = true; updateMini(); }, 300);
+}
+$$('.sheet').forEach(function (sh) {
+  sh.addEventListener('click', function (e) { if (e.target.closest('[data-act="close"]')) closeSheet(sh); });
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  $$('.sheet').forEach(function (sh) { if (!sh.hidden) closeSheet(sh); });
+});
+function menu(title, lead, actions) {
+  $('#menu-title').textContent = title;
+  $('#menu-lead').textContent = lead || '';
+  $('#menu-lead').hidden = !lead;
+  var box = $('#menu-actions');
+  box.innerHTML = '';
+  actions.concat([{ label: 'Cancelar' }]).forEach(function (a) {
+    var b = document.createElement('button');
+    b.className = 'btn ' + (a.primary ? 'primary' : 'ghost') + (a.danger ? ' act-danger' : '');
+    b.textContent = a.label;
+    b.addEventListener('click', function () { closeSheet($('#sh-menu')); if (a.run) a.run(); });
+    box.appendChild(b);
+  });
+  openSheet('#sh-menu');
+}
+
+/* ---------- Aviso ---------- */
+var toastTimer;
+function toast(text, actionLabel, action) {
+  var t = $('#toast'), b = $('#toast-b');
+  $('#toast-t').textContent = text;
+  b.hidden = !actionLabel;
+  b.textContent = actionLabel || '';
+  b.onclick = function () { t.classList.remove('show'); if (action) action(); };
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { t.classList.remove('show'); }, actionLabel ? 6000 : 4200);
+}
+
+/* ---------- Traer la lista desde Podcasts ---------- */
+var pickMode = 'initial';   // 'initial' o 'add'
+var pickSel = {};
+var awaitingPaste = false;
+
+function statusEl() { return view === 'pick' ? $('#pick-status') : $('#setup-status'); }
+function setStatus(text, err) { var el = statusEl(); el.textContent = text || ''; el.classList.toggle('err', !!err); }
+
+function runShortcut() {
+  awaitingPaste = true;
+  setStatus('Cuando el atajo termine, vuelve aquí y toca «Pegar lista».');
+  location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent(SHORTCUT);
+}
+function pasteList() {
+  var cb = navigator.clipboard;
+  if (!cb || !cb.readText) { openPaste(); return; }
+  cb.readText().then(function (text) {
+    if (text && text.trim()) readList(text); else { setStatus('El portapapeles está vacío. Ejecuta el atajo «Mis podcasts» y vuelve a intentarlo.', true); }
+  }, function () { openPaste(); });
+}
+function openPaste() { $('#paste-box').value = ''; openSheet('#sh-paste'); setTimeout(function () { $('#paste-box').focus(); }, 350); }
+var reading = false;
+function readList(text) {
+  if (reading) return;
+  reading = true; awaitingPaste = false;
+  $$('.paste-btn').forEach(function (b) { b.disabled = true; });
+  importLibrary(text, function (m) { setStatus(m); }).then(function (r) {
+    reading = false;
+    $$('.paste-btn').forEach(function (b) { b.disabled = false; });
+    if (!r.shows.length) { setStatus('No se encontró ningún programa en lo que copió el atajo. Revisa que el atajo copie el «ID de la tienda».', true); return; }
+    // La biblioteca se reemplaza por la lista recién leída (sin perder los elegidos).
+    S.library = r.shows; S.libraryAt = Date.now(); save();
+    setStatus('');
+    lastMissing = r.missing;
+    openPick(S.setupDone ? 'add' : 'initial');
+  }, function (err) {
+    reading = false;
+    $$('.paste-btn').forEach(function (b) { b.disabled = false; });
+    if (err && err.message === 'empty') setStatus('Lo pegado no parece una lista de podcasts. Ejecuta el atajo «Mis podcasts» y vuelve a intentarlo.', true);
+    else setStatus('No hubo conexión con Apple Podcasts. Revisa tu conexión e inténtalo de nuevo.', true);
+  });
+}
+var lastMissing = 0;
+
+/* ---------- Elegir programas ---------- */
+function openPick(mode) {
+  pickMode = mode;
+  pickSel = {};
+  $('#pick-filter').value = '';
+  $('#search-q').value = '';
+  $('#search-res').innerHTML = '';
+  $('#byname').open = false;
+  go('pick');
+  renderPick();
+}
+function candidates() {
+  var lib = S.library.slice();
+  if (pickMode === 'add') lib = lib.filter(function (s) { return !showById(s.id); });
+  return lib.sort(function (a, b) { return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }); });
+}
+function pkHTML(s, sel) {
+  return '<li><button class="pk" data-act="pick" data-id="' + esc(s.id) + '" aria-pressed="' + !!sel + '">' +
+    (s.art ? '<img src="' + esc(artSize(s.art, 160)) + '" alt="" loading="lazy">' : '<span class="ph"></span>') +
+    '<span><span class="pk-name">' + esc(s.name) + '</span><span class="pk-by">' + (s.byName ? '<em>Encontrado por nombre</em> ' : '') + esc(s.artist) + '</span></span>' +
+    '<span class="tick">' + I.check + '</span></button></li>';
+}
+function renderPick() {
+  var add = pickMode === 'add';
+  $('#pick-back-label').textContent = add ? 'Programas' : 'Atrás';
+  $('#pick-title').textContent = add ? 'Agregar programas' : 'Elige tus programas';
+  $('#pick-tools').hidden = !add;
+  var all = candidates();
+  var total = S.library.length;
+  var lead;
+  if (!add) lead = total ? 'Sigues ' + plural(total, 'programa', 'programas') + ' en Podcasts. Marca los que quieres ver aquí.' : 'Busca por nombre los programas que quieres ver aquí.';
+  else if (!S.libraryAt) lead = 'Trae desde Podcasts la lista de programas que sigues, o busca uno por nombre.';
+  else lead = all.length ? 'Programas que sigues en Podcasts y que aún no están aquí.' : 'Ya agregaste todos los programas que sigues en Podcasts.';
+  $('#pick-lead').textContent = lead;
+  var note = $('#pick-note');
+  var bits = [];
+  if (add && S.libraryAt) bits.push('Lista de Podcasts leída el ' + fDay.format(S.libraryAt) + '. Si seguiste programas nuevos después, toca «Actualizar desde Podcasts».');
+  if (lastMissing) bits.push(plural(lastMissing, 'programa no apareció', 'programas no aparecieron') + ' en el directorio de Apple, por ejemplo suscripciones privadas agregadas con un enlace.');
+  note.hidden = !bits.length; note.textContent = bits.join(' ');
+  var q = norm($('#pick-filter').value);
+  $('#pick-filter').hidden = all.length < 12;
+  var shownList = q ? all.filter(function (s) { return norm(s.name + ' ' + s.artist).indexOf(q) >= 0; }) : all;
+  $('#pick-list').innerHTML = shownList.map(function (s) { return pkHTML(s, pickSel[s.id]); }).join('');
+  $('#pick-empty').hidden = !(q && !shownList.length);
+  $('#pick-empty').textContent = 'Ningún programa coincide con «' + $('#pick-filter').value + '».';
+  var n = Object.keys(pickSel).length;
+  $('#selall').hidden = all.length < 2;
+  $('#sel-count').textContent = n ? plural(n, 'seleccionado', 'seleccionados') : 'Ninguno seleccionado';
+  var allSel = all.length && all.every(function (s) { return pickSel[s.id]; });
+  $('#toggle-all').textContent = allSel ? 'Quitar todos' : 'Seleccionar todos';
+  var goBtn = $('#pick-go');
+  goBtn.disabled = !n;
+  goBtn.textContent = add ? (n ? 'Agregar ' + plural(n, 'programa', 'programas') : 'Agregar') : (n ? 'Ver episodios de ' + plural(n, 'programa', 'programas') : 'Ver episodios');
+}
+$('#pick-filter').addEventListener('input', renderPick);
+$('#pick-list').addEventListener('click', function (e) {
+  var b = e.target.closest('.pk'); if (!b) return;
+  var id = b.dataset.id;
+  if (pickSel[id]) delete pickSel[id]; else pickSel[id] = 1;
+  b.setAttribute('aria-pressed', !!pickSel[id]);
+  renderPick();
+});
+function confirmPick() {
+  var chosen = S.library.filter(function (s) { return pickSel[s.id] && !showById(s.id); });
+  if (!chosen.length) return;
+  if (pickMode === 'initial') { S.shows = chosen.slice(); S.filter = null; S.intro = chosen.map(function (x) { return x.id; }); }
+  else { S.shows = S.shows.concat(chosen); S.intro = (S.intro || []).concat(chosen.map(function (x) { return x.id; })); }
+  S.setupDone = true; lastMissing = 0;
+  save();
+  go('home');
+  refresh(false);
+  if (pickMode === 'add') toast(chosen.length === 1 ? 'Se agregó ' + chosen[0].name + '.' : 'Se agregaron ' + plural(chosen.length, 'programa', 'programas') + '.');
+}
+
+/* Buscar por nombre en Apple Podcasts */
+$('#search-form').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var q = $('#search-q').value.trim(); if (!q) return;
+  var box = $('#search-res');
+  box.innerHTML = '<li class="empty-pick">Buscando…</li>';
+  $('#search-q').blur();
+  itunes('search', { term: q, media: 'podcast', entity: 'podcast', limit: 10, country: 'CL' }).then(function (res) {
+    var items = res.filter(function (r) { return r.collectionId; }).map(function (r) { return toShow(r, 'CL'); });
+    if (!items.length) { box.innerHTML = '<li class="empty-pick">No se encontraron programas con ese nombre.</li>'; return; }
+    searchItems = {};
+    items.forEach(function (s) { searchItems[s.id] = s; });
+    box.innerHTML = items.map(function (s) {
+      var already = !!showById(s.id);
+      return already ? pkHTML(Object.assign({}, s, { artist: 'Ya está en tu lista' }), true).replace('data-act="pick"', 'data-act="none" disabled') : pkHTML(s, pickSel[s.id]);
+    }).join('');
+  }, function () { box.innerHTML = '<li class="empty-pick">No hubo conexión con Apple Podcasts. Inténtalo de nuevo.</li>'; });
+});
+var searchItems = {};
+$('#search-res').addEventListener('click', function (e) {
+  var b = e.target.closest('.pk'); if (!b || b.disabled) return;
+  var s = searchItems[b.dataset.id]; if (!s) return;
+  if (!S.library.some(function (x) { return x.id === s.id; })) { S.library.push(s); save(); }
+  if (pickSel[s.id]) delete pickSel[s.id]; else pickSel[s.id] = 1;
+  b.setAttribute('aria-pressed', !!pickSel[s.id]);
+  renderPick();
+});
+
+/* ---------- Programas y ajustes ---------- */
+function renderShows() {
+  var counts = {};
+  pending().forEach(function (e) { counts[e.show] = (counts[e.show] || 0) + 1; });
+  var list = S.shows.slice().sort(function (a, b) { return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }); });
+  $('#show-list').innerHTML = list.map(function (s) {
+    var n = counts[s.id] || 0;
+    return '<li class="sh"><img src="' + esc(artSize(s.art, 160)) + '" alt="" loading="lazy"><div style="min-width:0"><div class="sh-name">' + esc(s.name) + '</div><div class="sh-sub">' + (n ? plural(n, 'pendiente', 'pendientes') : 'Al día') + '</div></div>' +
+      '<button class="icon" data-act="show-menu" data-id="' + esc(s.id) + '" aria-label="Opciones de ' + esc(s.name) + '">' + I.more + '</button></li>';
+  }).join('') || '<li class="empty-pick">Aún no eliges programas.</li>';
+  $$('#seg-days button').forEach(function (b) { b.setAttribute('aria-pressed', +b.dataset.days === S.days); });
+  $('#shows-foot').textContent = S.libraryAt ? 'Lista de Podcasts leída el ' + fDay.format(S.libraryAt) + '.' : '';
+}
+$('#seg-days').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  S.days = +b.dataset.days; save(); renderShows();
+});
+function showMenu(id) {
+  var s = showById(id); if (!s) return;
+  var mine = pending().filter(function (e) { return e.show === id; });
+  var acts = [];
+  if (mine.length) acts.push({ label: 'Marcar ' + (mine.length === 1 ? 'el pendiente' : 'los ' + mine.length + ' pendientes') + ' como escuchados', run: function () {
+    var now = Date.now(); mine.forEach(function (e) { S.played[e.id] = now; delete S.progress[e.id]; }); save(); renderShows(); toast('Listo: ' + s.name + ' quedó al día.');
+  } });
+  acts.push({ label: 'Quitar de la lista', danger: true, run: function () {
+    S.shows = S.shows.filter(function (x) { return x.id !== id; });
+    if (S.intro) S.intro = S.intro.filter(function (x) { return x !== id; });
+    if (S.filter === id) S.filter = null;
+    var cur = curEp(); if (cur && cur.show === id) { audio.pause(); audio.removeAttribute('src'); S.cur = null; }
+    prune(); save(); renderShows();
+    toast('Se quitó ' + s.name + '. Puedes volver a agregarlo cuando quieras.');
+  } });
+  menu(s.name, s.artist, acts);
+}
+
+/* ---------- Acciones ---------- */
+document.addEventListener('click', function (e) {
+  var el = e.target.closest('[data-act]'); if (!el) return;
+  var a = el.dataset.act;
+  switch (a) {
+    case 'help': openSheet('#sh-help'); break;
+    case 'run': runShortcut(); break;
+    case 'paste': pasteList(); break;
+    case 'paste-read': {
+      var t = $('#paste-box').value; closeSheet($('#sh-paste'));
+      if (t.trim()) readList(t);
+      break;
+    }
+    case 'by-name': openPick('initial'); $('#byname').open = true; setTimeout(function () { $('#search-q').focus(); }, 50); break;
+    case 'pick-back': if (pickMode === 'add') go('shows'); else go(S.setupDone ? 'home' : 'setup'); break;
+    case 'pick-go': confirmPick(); break;
+    case 'toggle-all': {
+      var all = candidates();
+      var allSel = all.every(function (s) { return pickSel[s.id]; });
+      all.forEach(function (s) { if (allSel) delete pickSel[s.id]; else pickSel[s.id] = 1; });
+      renderPick(); break;
+    }
+    case 'refresh': refresh(true); break;
+    case 'start-today': {
+      var ids = S.intro || [], now = Date.now(), n = 0;
+      pending().forEach(function (e) { if (ids.indexOf(e.show) >= 0) { S.played[e.id] = now; delete S.progress[e.id]; n++; } });
+      S.intro = null; save(); renderHome();
+      toast('Listo. Desde ahora verás solo los episodios nuevos.');
+      break;
+    }
+    case 'start-keep': S.intro = null; save(); renderHome(); break;
+    case 'shows': go('shows'); break;
+    case 'home': go('home'); break;
+    case 'add': lastMissing = 0; openPick('add'); break;
+    case 'filter': S.filter = S.filter === el.dataset.id ? null : el.dataset.id; save(); renderHome(); break;
+    case 'clear-filter': S.filter = null; save(); renderHome(); break;
+    case 'show-menu': showMenu(el.dataset.id); break;
+    case 'mark-all': {
+      var p = pending();
+      if (!p.length) { toast('No hay episodios pendientes.'); break; }
+      menu('¿Marcar todo como escuchado?', 'Se marcarán ' + plural(p.length, 'episodio', 'episodios') + ' de todos tus programas.', [{ label: 'Marcar ' + plural(p.length, 'episodio', 'episodios'), primary: true, run: function () {
+        var now = Date.now(); p.forEach(function (e) { S.played[e.id] = now; delete S.progress[e.id]; }); save(); renderShows(); toast('Todo quedó marcado como escuchado.');
+      } }]);
+      break;
+    }
+    case 'toggle': togglePlay(); break;
+    case 'open-cur': { var c = curEp(); if (c) openPlayer(c.id); break; }
+    case 'back15': seekBy(-15); break;
+    case 'fwd30': seekBy(30); break;
+    case 'speed': {
+      var i = SPEEDS.indexOf(S.speed);
+      S.speed = SPEEDS[(i + 1) % SPEEDS.length]; save();
+      audio.playbackRate = S.speed;
+      el.textContent = speedLabel(S.speed);
+      break;
+    }
+    case 'mark': {
+      if (!shown) break;
+      var id = shown.id;
+      if (S.played[id]) { delete S.played[id]; save(); syncPlayer(); renderHome(); }
+      else {
+        if (S.cur === id && !audio.paused) audio.pause();
+        markPlayed(id); renderHome(); closeSheet($('#sh-player'));
+      }
+      break;
+    }
+  }
+});
+
+/* Al volver desde Atajos */
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState !== 'visible') return;
+  if (awaitingPaste && (view === 'setup' || view === 'pick')) {
+    setStatus('Toca «Pegar lista» para leer tus programas.');
+    $$('.paste-btn').forEach(function (b) { if (b.offsetParent) { b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); } });
+  }
+  if (view === 'home') refresh(false);
+});
+
+/* ---------- Arranque ---------- */
+(function boot() {
+  if (S.cur && !epById(S.cur)) S.cur = null;
+  S.filter = null;
+  if (S.setupDone) { go('home'); refresh(false); }
+  else go('setup');
+  setInterval(function () { if (view === 'home' && !refreshing && document.visibilityState === 'visible') $('#home-foot').textContent = ago(S.updatedAt); }, 60000);
+})();
+
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && location.hostname !== 'localhost') {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+})();
+</script>
+</body>
+</html>
