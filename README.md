@@ -31,8 +31,9 @@ Se crea una vez en la app **Atajos**:
 2. Toca el nombre arriba, elige **Renombrar** y escribe **Mis podcasts**, tal cual.
 3. En el buscador de acciones escribe **podcast** y agrega **Obtener podcasts de la biblioteca**.
 4. Agrega **Obtener detalles del podcast**. Toca el detalle en azul y elige **ID de la tienda** (Store ID).
-5. Busca y agrega **Copiar al portapapeles**.
-6. Toca **OK**. La primera vez que se ejecute, iOS pedirá permiso para usar Podcasts: toca **Permitir**.
+5. Busca y agrega **Combinar texto**. Toca el separador en azul y elige **Nueva línea**. Sin este paso, el portapapeles entrega solo el primer programa.
+6. Busca y agrega **Copiar al portapapeles**, después de **Combinar texto**.
+7. Toca **OK**. La primera vez que se ejecute, iOS pedirá permiso para usar Podcasts: toca **Permitir**.
 
 Los nombres de las acciones pueden variar un poco según la versión de iOS; buscar «podcast» las muestra todas.
 

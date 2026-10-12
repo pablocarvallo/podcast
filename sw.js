@@ -1,6 +1,6 @@
 // Service worker: deja la app disponible sin conexión.
 // No toca las consultas a Apple Podcasts ni el audio de los episodios.
-const CACHE = 'porescuchar-v1';
+const CACHE = 'porescuchar-v2';
 const ART = 'porescuchar-portadas';
 const ASSETS = [
   './',

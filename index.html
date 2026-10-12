@@ -243,7 +243,7 @@ p{margin:0}
     </header>
     <p class="body">Apple no permite que otras apps lean tu biblioteca de Podcasts. Por eso la lista de programas que sigues se trae con un atajo de la app Atajos. Se hace una vez, y de nuevo solo cuando quieras sumar programas.</p>
     <ol class="steps">
-      <li><span class="step-n">1</span><div class="step-b"><h3>Crea el atajo «Mis podcasts»</h3><p>Son tres acciones en la app Atajos.</p><button class="link" data-act="help">Ver cómo crearlo</button></div></li>
+      <li><span class="step-n">1</span><div class="step-b"><h3>Crea el atajo «Mis podcasts»</h3><p>Son cuatro acciones en la app Atajos.</p><button class="link" data-act="help">Ver cómo crearlo</button></div></li>
       <li><span class="step-n">2</span><div class="step-b"><h3>Ejecútalo</h3><p>Copia tus programas al portapapeles. Luego vuelve aquí.</p><button class="btn ghost" data-act="run">Abrir el atajo</button></div></li>
       <li><span class="step-n">3</span><div class="step-b"><h3>Pega la lista</h3><p>La app busca cada programa en Apple Podcasts.</p><button class="btn primary paste-btn" data-act="paste">Pegar lista</button></div></li>
     </ol>
@@ -363,7 +363,8 @@ p{margin:0}
       <li>Toca el nombre arriba, elige <b>Renombrar</b> y escribe <b>Mis podcasts</b>, tal cual.</li>
       <li>En el buscador de acciones escribe <b>podcast</b> y agrega <b>Obtener podcasts de la biblioteca</b>.</li>
       <li>Agrega <b>Obtener detalles del podcast</b>. Toca el detalle en azul y elige <b>ID de la tienda</b> (Store ID).</li>
-      <li>Busca y agrega <b>Copiar al portapapeles</b>.</li>
+      <li>Busca y agrega <b>Combinar texto</b>. Toca el separador en azul y elige <b>Nueva línea</b>. Sin este paso, el portapapeles entrega solo el primer programa.</li>
+      <li>Busca y agrega <b>Copiar al portapapeles</b>. Debe quedar después de <b>Combinar texto</b>.</li>
       <li>Toca <b>OK</b>. La primera vez que lo ejecutes, iOS pedirá permiso para usar Podcasts: toca <b>Permitir</b>.</li>
     </ol>
     <p class="small">Los nombres de las acciones pueden cambiar un poco según la versión de iOS; buscar «podcast» las muestra todas. Si no encuentras «ID de la tienda», omite el paso 4: la app intentará reconocer los programas por su nombre, con menos precisión.</p>
@@ -557,7 +558,7 @@ function importLibrary(text, step) {
   });
   return chain.then(function () {
     var missing = p.ids.filter(function (id) { return !found[id]; }).length + missingNames.length;
-    return { shows: order.map(function (id) { return found[id]; }), missing: missing };
+    return { shows: order.map(function (id) { return found[id]; }), missing: missing, entries: p.ids.length + p.names.length };
   });
 }
 
@@ -1023,10 +1024,26 @@ function runShortcut() {
   setStatus('Cuando el atajo termine, vuelve aquí y toca «Pegar lista».');
   location.href = 'shortcuts://run-shortcut?name=' + encodeURIComponent(SHORTCUT);
 }
+/* El atajo puede dejar cada programa como un elemento aparte del portapapeles:
+   se leen todos los elementos y se unen, uno por línea. */
+function readClipboard() {
+  var cb = navigator.clipboard;
+  if (cb && cb.read) {
+    return cb.read().then(function (items) {
+      return Promise.all(items.map(function (it) {
+        var type = it.types.indexOf('text/plain') >= 0 ? 'text/plain' : it.types.indexOf('text/uri-list') >= 0 ? 'text/uri-list' : null;
+        if (!type) return '';
+        return it.getType(type).then(function (blob) { return blob.text(); }, function () { return ''; });
+      }));
+    }).then(function (parts) { return parts.filter(Boolean).join('\n'); });
+  }
+  if (cb && cb.readText) return cb.readText();
+  return Promise.reject(new Error('no-clipboard'));
+}
 function pasteList() {
   var cb = navigator.clipboard;
-  if (!cb || !cb.readText) { openPaste(); return; }
-  cb.readText().then(function (text) {
+  if (!cb || !(cb.read || cb.readText)) { openPaste(); return; }
+  readClipboard().then(function (text) {
     if (text && text.trim()) readList(text); else { setStatus('El portapapeles está vacío. Ejecuta el atajo «Mis podcasts» y vuelve a intentarlo.', true); }
   }, function () { openPaste(); });
 }
@@ -1044,6 +1061,7 @@ function readList(text) {
     S.library = r.shows; S.libraryAt = Date.now(); save();
     setStatus('');
     lastMissing = r.missing;
+    lastOnlyOne = r.entries === 1;
     openPick(S.setupDone ? 'add' : 'initial');
   }, function (err) {
     reading = false;
@@ -1052,7 +1070,7 @@ function readList(text) {
     else setStatus('No hubo conexión con Apple Podcasts. Revisa tu conexión e inténtalo de nuevo.', true);
   });
 }
-var lastMissing = 0;
+var lastMissing = 0, lastOnlyOne = false;
 
 /* ---------- Elegir programas ---------- */
 function openPick(mode) {
@@ -1084,15 +1102,18 @@ function renderPick() {
   var all = candidates();
   var total = S.library.length;
   var lead;
-  if (!add) lead = total ? 'Sigues ' + plural(total, 'programa', 'programas') + ' en Podcasts. Marca los que quieres ver aquí.' : 'Busca por nombre los programas que quieres ver aquí.';
+  if (!add && lastOnlyOne) lead = 'Marca los programas que quieres ver aquí.';
+  else if (!add) lead = total ? 'Sigues ' + plural(total, 'programa', 'programas') + ' en Podcasts. Marca los que quieres ver aquí.' : 'Busca por nombre los programas que quieres ver aquí.';
   else if (!S.libraryAt) lead = 'Trae desde Podcasts la lista de programas que sigues, o busca uno por nombre.';
   else lead = all.length ? 'Programas que sigues en Podcasts y que aún no están aquí.' : 'Ya agregaste todos los programas que sigues en Podcasts.';
   $('#pick-lead').textContent = lead;
   var note = $('#pick-note');
   var bits = [];
   if (add && S.libraryAt) bits.push('Lista de Podcasts leída el ' + fDay.format(S.libraryAt) + '. Si seguiste programas nuevos después, toca «Actualizar desde Podcasts».');
+  if (lastOnlyOne) bits.push('El atajo copió un solo programa. Si sigues más, agrega la acción «Combinar texto» con «Nueva línea» antes de «Copiar al portapapeles» y vuelve a pegar la lista.');
   if (lastMissing) bits.push(plural(lastMissing, 'programa no apareció', 'programas no aparecieron') + ' en el directorio de Apple, por ejemplo suscripciones privadas agregadas con un enlace.');
   note.hidden = !bits.length; note.textContent = bits.join(' ');
+  if (lastOnlyOne) { var hl = document.createElement('button'); hl.className = 'link'; hl.dataset.act = 'help'; hl.textContent = 'Ver cómo crear el atajo'; hl.style.display = 'block'; note.appendChild(hl); }
   var q = norm($('#pick-filter').value);
   $('#pick-filter').hidden = all.length < 12;
   var shownList = q ? all.filter(function (s) { return norm(s.name + ' ' + s.artist).indexOf(q) >= 0; }) : all;
@@ -1121,7 +1142,7 @@ function confirmPick() {
   if (!chosen.length) return;
   if (pickMode === 'initial') { S.shows = chosen.slice(); S.filter = null; S.intro = chosen.map(function (x) { return x.id; }); }
   else { S.shows = S.shows.concat(chosen); S.intro = (S.intro || []).concat(chosen.map(function (x) { return x.id; })); }
-  S.setupDone = true; lastMissing = 0;
+  S.setupDone = true; lastMissing = 0; lastOnlyOne = false;
   save();
   go('home');
   refresh(false);
@@ -1224,7 +1245,7 @@ document.addEventListener('click', function (e) {
     case 'start-keep': S.intro = null; save(); renderHome(); break;
     case 'shows': go('shows'); break;
     case 'home': go('home'); break;
-    case 'add': lastMissing = 0; openPick('add'); break;
+    case 'add': lastMissing = 0; lastOnlyOne = false; openPick('add'); break;
     case 'filter': S.filter = S.filter === el.dataset.id ? null : el.dataset.id; save(); renderHome(); break;
     case 'clear-filter': S.filter = null; save(); renderHome(); break;
     case 'show-menu': showMenu(el.dataset.id); break;
